@@ -34,9 +34,9 @@ table! {
 table! {
     scripactions (id) {
         id -> Int4,
-        name -> Nullable<Varchar>,
-        description -> Nullable<Varchar>,
-        execmodule -> Nullable<Varchar>,
+        name -> Varchar,
+        description -> Varchar,
+        execmodule -> Varchar,
         argument -> Nullable<Varchar>,
         creator -> Int4,
         created -> Nullable<Timestamp>,
@@ -48,9 +48,9 @@ table! {
 table! {
     scripconditions (id) {
         id -> Int4,
-        name -> Nullable<Varchar>,
-        description -> Nullable<Varchar>,
-        execmodule -> Nullable<Varchar>,
+        name -> Varchar,
+        description -> Varchar,
+        execmodule -> Varchar,
         argument -> Nullable<Varchar>,
         applicabletranstypes -> Nullable<Varchar>,
         creator -> Int4,
@@ -63,7 +63,7 @@ table! {
 table! {
     scrips (id) {
         id -> Int4,
-        description -> Nullable<Varchar>,
+        description -> Varchar,
         scripcondition -> Int4,
         scripaction -> Int4,
         customisapplicablecode -> Nullable<Text>,

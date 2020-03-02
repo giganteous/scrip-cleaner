@@ -3,45 +3,14 @@ extern crate diesel;
 extern crate chrono;
 extern crate dotenv;
 
-use chrono::NaiveDateTime;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 
 pub mod schema;
 use schema::*;
 
-#[derive(Debug, Queryable, Identifiable, Associations)]
-#[table_name = "scrips"]
-pub struct Scrip {
-    pub id: i32,
-    pub description: Option<String>,
-    pub scripcondition: i32,
-    pub scripaction: i32,
-    pub customisapplicablecode: Option<String>,
-    pub custompreparecode: Option<String>,
-    pub customcommitcode: Option<String>,
-    pub disabled: i32,
-    pub template: String,
-    creator: i32,
-    created: Option<NaiveDateTime>,
-    lastupdatedby: i32,
-    lastupdated: Option<NaiveDateTime>,
-}
-
-#[derive(Debug, Queryable, Identifiable, Associations)]
-#[table_name = "objectscrips"]
-#[belongs_to(Scrip, foreign_key = "scrip")]
-pub struct ObjectScrip {
-    pub id: i32,
-    pub scrip: i32, // Scrip.id
-    pub stage: String,
-    pub objectid: i32, // Queue.id
-    pub sortorder: i32,
-    creator: i32,
-    created: Option<NaiveDateTime>,
-    lastupdatedby: i32,
-    lastupdated: Option<NaiveDateTime>,
-}
+pub mod models;
+use models::*;
 
 fn main() {
     dotenv::dotenv().ok();
@@ -60,18 +29,32 @@ fn main() {
 
     let grouped: Vec<Vec<ObjectScrip>> = objscrips.grouped_by(&scrips);
 
+    let when = scripconditions(&conn);
     let r: Vec<(Scrip, Vec<ObjectScrip>)> = scrips.into_iter().zip(grouped).collect::<Vec<_>>();
-    for (key, value) in r {
-        println!(
-            "scrip {} ({})",
-            key.id,
-            match key.description {
-                Some(x) => x,
-                None => "<none>".to_string(),
-            }
-        );
-        for q in value {
-            println!("  on queue id {}", q.objectid);
-        }
+    for (key, _value) in r {
+        println!("scrip {}\ndesc: {}", key.id, key.description);
+        //for q in value { println!("  on queue id {}", q.objectid); }
     }
+}
+
+use std::collections::HashMap;
+
+fn scripactions(conn: &PgConnection) -> HashMap<i32, ScripAction> {
+    let mut r: HashMap<i32, ScripAction> = HashMap::new();
+    let scripactions = scripactions::table.load::<ScripAction>(conn).expect("some");
+    for a in scripactions {
+        r.insert(a.id, a);
+    }
+    r
+}
+
+fn scripconditions(conn: &PgConnection) -> HashMap<i32, ScripCondition> {
+    let mut r: HashMap<i32, ScripCondition> = HashMap::new();
+    let rows = scripconditions::table
+        .load::<ScripCondition>(conn)
+        .expect("some");
+    for a in rows {
+        r.insert(a.id, a);
+    }
+    r
 }
