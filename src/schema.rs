@@ -19,15 +19,15 @@ table! {
         description -> Nullable<Varchar>,
         correspondaddress -> Nullable<Varchar>,
         commentaddress -> Nullable<Varchar>,
-        lifecycle -> Nullable<Varchar>,
-        subjecttag -> Nullable<Varchar>,
-        sortorder -> Int4,
         creator -> Int4,
         created -> Nullable<Timestamp>,
         lastupdatedby -> Int4,
         lastupdated -> Nullable<Timestamp>,
-        sladisabled -> Int4,
         disabled -> Int4,
+        subjecttag -> Nullable<Varchar>,
+        lifecycle -> Nullable<Varchar>,
+        sortorder -> Int4,
+        sladisabled -> Int4,
     }
 }
 
@@ -69,12 +69,12 @@ table! {
         customisapplicablecode -> Nullable<Text>,
         custompreparecode -> Nullable<Text>,
         customcommitcode -> Nullable<Text>,
-        disabled -> Int4,
         template -> Varchar,
         creator -> Int4,
         created -> Nullable<Timestamp>,
         lastupdatedby -> Int4,
         lastupdated -> Nullable<Timestamp>,
+        disabled -> Int2,
     }
 }
 
