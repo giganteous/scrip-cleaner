@@ -13,12 +13,12 @@ pub struct Scrip {
     pub customisapplicablecode: Option<String>,
     pub custompreparecode: Option<String>,
     pub customcommitcode: Option<String>,
-    pub disabled: i32,
     pub template: String,
     creator: i32,
     created: Option<NaiveDateTime>,
     lastupdatedby: i32,
     lastupdated: Option<NaiveDateTime>,
+    pub disabled: i16,
 }
 
 #[derive(Debug, Queryable, Identifiable, Associations)]
