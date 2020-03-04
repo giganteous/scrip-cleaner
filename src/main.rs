@@ -23,13 +23,9 @@ fn main() {
     let database_url = env::var("DATABASE_URL").expect("it to be set");
     let conn = PgConnection::establish(&database_url).expect("yeah!");
 
-    if false {
-        ontdubbelen(&conn);
-    }
+    ontdubbelen(&conn);
 
-    if false {
-        update_descriptions(&conn);
-    }
+    update_descriptions(&conn);
 }
 
 fn grouped_scrips(conn: &PgConnection) -> GroupedScrips {
@@ -69,20 +65,23 @@ fn scripconditions(conn: &PgConnection) -> HashMap<i32, String> {
 }
 
 fn update_descriptions(conn: &PgConnection) {
-    let mut when = scripconditions(conn);
-    let mut what = scripactions(conn);
+    let when = scripconditions(conn);
+    let what = scripactions(conn);
 
+    // this does not return a generated name when either action or
+    // condition doesn't have a name. this is probably a bug in the
+    // production watson database.
     let mut generate_name = |scrip: &Scrip| -> Option<String> {
         let condition = when.get(&scrip.scripcondition)?;
-        //.or_insert(format!("<condition {}>", scrip.scripcondition));
         let action = what.get(&scrip.scripaction)?;
-        //.or_insert(format!("<action {}>", scrip.scripaction));
         Some(format!("{} {}", condition, action))
     };
 
     conn.transaction::<_, diesel::result::Error, _>(|| {
         for (scrip, objs) in grouped_scrips(conn) {
-            if objs.len() > 0 && scrip.description.contains("Imported from RT") {
+            if objs.len() > 0 && scrip.description.contains("Imported from RT")
+                || scrip.description.len() == 0
+            {
                 if let Some(generated) = generate_name(&scrip) {
                     println!(
                         "--> suggesting rename\nFROM: {}\nTO  : {}\n===",
@@ -142,6 +141,7 @@ fn ontdubbelen(conn: &PgConnection) {
                     Ok(c) if c > 0 => {
                         let q = diesel::update(target).set(objectscrips::scrip.eq(newid));
                         println!("{}", diesel::debug_query::<Pg, _>(&q));
+                        continue;
                         q.execute(conn).expect("update to succeed");
                     }
                     _ => {}
